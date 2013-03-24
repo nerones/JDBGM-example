@@ -9,8 +9,6 @@ import com.crossdb.sql.SelectQuery;
 import com.nelsonx.jdbgm.GenericManager;
 import com.nelsonx.jdbgm.JDException;
 import com.nelsonx.jdbgm.ManagerFactory;
-import com.nelsonx.sqlite.SQLiteFormatter;
-import com.nelsonx.sqlite.SQLiteSelectQuery;
 
 /**
  * @author Nelson Efrain A. Cruz
@@ -130,10 +128,19 @@ public class DataObtainer {
 	 }
 	 
 	 public ResultSet listStudenbyYearGrade(String year, int idgrade) throws JDException{
-		String sql = "select a.nombre, a.apellido, a.dni, a.email " +
+		/*String sql = "select a.nombre, a.apellido, a.dni, a.email " +
 				"from aniolectivo al inner join alumnos a on a.idAlumno = al.idAlumno " +
-		 		"where al.anio='"+year+"' and al.idgrado="+idgrade;
-		return manager.query(sql); 
+		 		"where al.anio='"+year+"' and al.idgrado="+idgrade;*/
+		SelectQuery select = sentences.getSelectQuery();
+		select.addColumn("nombre");
+		select.addColumn("apellido");
+		select.addColumn("dni");
+		select.addColumn("email");
+		select.addTable("aniolectivo al");
+		select.addJoin().innerJoin("alumnos a", "a.idAlumno = al.idAlumno");
+		select.addWhere().andEquals("al.anio", year);
+		select.addWhere().andEquals("al.idgrado", idgrade);
+		return manager.query(select); 
 		
 	 }
 
