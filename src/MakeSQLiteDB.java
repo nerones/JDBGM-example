@@ -9,7 +9,9 @@ import java.util.Vector;
 
 import com.crossdb.sql.Column;
 import com.crossdb.sql.CreateTableQuery;
+import com.crossdb.sql.InsertQuery;
 import com.crossdb.sql.SQLFactory;
+import com.crossdb.sql.SelectQuery;
 import com.nelsonx.jdbgm.GenericManager;
 import com.nelsonx.jdbgm.JDException;
 import com.nelsonx.jdbgm.ManagerFactory;
@@ -106,14 +108,15 @@ public class MakeSQLiteDB {
 			int dni = 0;
 			String date = "";
 			String tel = "";
-
+			
+			InsertQuery insert;
 			for (int i = 0; i < nombres.size(); i++) {
 				dni = 10000000 + ranGene.nextInt(10000000);
 				tel = String.valueOf(4000000 + ranGene.nextInt(999999));
 				String anio = String.valueOf(2000 + ranGene.nextInt(1000));
 				String mes = String.valueOf(ranGene.nextInt(12));
 				String dia = String.valueOf(ranGene.nextInt(28));
-				date = anio + "/" + mes + "/" + dia;
+				date = anio + "/" + mes + "/" + dia;/*
 				sql = "INSERT INTO alumnos (dni,fechaNacimiento,email,direccion,nombre,apellido,telefono)"
 						+ "VALUES ("
 						+ dni
@@ -126,8 +129,18 @@ public class MakeSQLiteDB {
 						+ "','"
 						+ nombres.elementAt(i)
 						+ "','"
-						+ apellidos.elementAt(i) + "','" + tel + "' )";
-				manager.update(sql);
+						+ apellidos.elementAt(i) + "','" + tel + "' )";*/
+				insert = sentencesFactory.getInsertQuery();
+				insert.setTable("alumnos");
+				insert.addColumn("dni", dni);
+				insert.addColumn("fechaNacimiento", date);
+				insert.addColumn("email", mails.elementAt(i));
+				insert.addColumn("direccion", calles.elementAt(i));
+				insert.addColumn("nombre", nombres.elementAt(i));
+				insert.addColumn("apellido", apellidos.elementAt(i));
+				insert.addColumn("telefono", tel);
+
+				manager.update(insert);
 
 			}
 			
@@ -135,21 +148,30 @@ public class MakeSQLiteDB {
 			Vector<String> materias = Utils.openFile("DOC/Materias.txt");
 
 			for (int i = 0; i < materias.size(); i++) {
-				sql = "insert into materias (nombre) values ('"
-						+ materias.elementAt(i) + "')";
-				manager.update(sql);
+				insert = sentencesFactory.getInsertQuery();
+				insert.setTable("materias");
+				insert.addColumn("nombre", materias.elementAt(i));
+				/*sql = "insert into materias (nombre) values ('"
+						+ materias.elementAt(i) + "')";*/
+				manager.update(insert);
 			}
 			
 			//datos para los grados
 			String[] nom = { "4a", "4b", "5a", "5c" };
 			for (int i = 0; i < 3; i++) {
-				sql ="insert into grados (nombre) values('"
-						+ nom[i] + "')";
-				manager.update(sql);
+				insert = sentencesFactory.getInsertQuery();
+				insert.setTable("grados");
+				insert.addColumn("nombre", nom[i]);
+				/*sql ="insert into grados (nombre) values('"
+						+ nom[i] + "')";*/
+				manager.update(insert);
 			}
 			
 			//datos para aniolectivo
-			ResultSet rse = manager.query("select idAlumno from alumnos");
+			SelectQuery select = sentencesFactory.getSelectQuery();
+			select.addColumn("idAlumno");
+			select.addTable("alumnos");
+			ResultSet rse = manager.query(select);
 			Vector<Integer> idsalumnos = new Vector<Integer>();
 
 			while (rse.next()) {
@@ -157,7 +179,10 @@ public class MakeSQLiteDB {
 
 			}
 			rse.close();
-			rse = manager.query("select idgrado from grados");
+			select = sentencesFactory.getSelectQuery();
+			select.addColumn("idgrado");
+			select.addTable("grados");
+			rse = manager.query(select);
 			Vector<Integer> idsgrados = new Vector<Integer>();
 
 			while (rse.next()) {
@@ -169,21 +194,32 @@ public class MakeSQLiteDB {
 				int[] anios = {2010,2009,2008};
 				int a = ranGene.nextInt(anios.length);
 				int b = ranGene.nextInt(idsgrados.size());
-				sql ="insert into aniolectivo(idAlumno,idgrado,anio) values ("
+				/*sql ="insert into aniolectivo(idAlumno,idgrado,anio) values ("
 						+ idsalumnos.elementAt(i)
 						+ ","
-						+ idsgrados.elementAt(b) + "," + anios[a] + ")";
-				manager.update(sql);
+						+ idsgrados.elementAt(b) + "," + anios[a] + ")";*/
+				insert = sentencesFactory.getInsertQuery();
+				insert.setTable("aniolectivo");
+				insert.addColumn("idAlumno", idsalumnos.elementAt(i));
+				insert.addColumn("idgrado", idsgrados.elementAt(b));
+				insert.addColumn("anio", anios[a]);
+				manager.update(insert);
 			}
 			
 			//datos para materiasxanio
-			rse = manager.query("select idAA from aniolectivo");
+			select = sentencesFactory.getSelectQuery();
+			select.addColumn("idAA");
+			select.addTable("aniolectivo");
+			rse = manager.query(select);
 			Vector<Integer> idAA = new Vector<Integer>();
 			while (rse.next()) {
 				idAA.add((Integer) rse.getObject("idAA"));
 			}
 			rse.close();
-			rse = manager.query("select idMateria from materias");
+			select = sentencesFactory.getSelectQuery();
+			select.addColumn("idMateria");
+			select.addTable("materias");
+			rse = manager.query(select);
 			Vector<Integer> idMAteria = new Vector<Integer>();
 
 			while (rse.next()) {
@@ -192,15 +228,22 @@ public class MakeSQLiteDB {
 			rse.close();
 			for (int i = 0; i < idAA.size(); i++) {
 				int materia = ranGene.nextInt(idMAteria.size());
-				sql = "insert into materiasxanio (idAA,idMateria) values ("
+				/*sql = "insert into materiasxanio (idAA,idMateria) values ("
 						+ idAA.elementAt(i)
 						+ ","
-						+ idMAteria.elementAt(materia) + ")";
-				manager.update(sql);
+						+ idMAteria.elementAt(materia) + ")";*/
+				insert = sentencesFactory.getInsertQuery();
+				insert.setTable("materiasxanio");
+				insert.addColumn("idAA", idAA.elementAt(i));
+				insert.addColumn("idMateria", idMAteria.elementAt(materia));
+				manager.update(insert);
 			}
 
 			//datos para asistencias
-			rse = manager.query("select idMP from materiasxanio");
+			select = sentencesFactory.getSelectQuery();
+			select.addColumn("idMP");
+			select.addTable("materiasxanio");
+			rse = manager.query(select);
 			Vector<Integer> idMP = new Vector<Integer>();
 
 			while (rse.next()) {
@@ -215,9 +258,14 @@ public class MakeSQLiteDB {
 
 					String dia = "" + (i + 1);// String.valueOf(ranGene.nextInt(28));
 					date = anio + "/" + mes + "/" + dia;
-					sql = "insert into asistencias (fecha,asistencia,idMP) values ('"
-							+ date + "'," + 1 + "," + idMP.elementAt(j) + ")";
-					manager.update(sql);
+					/*sql = "insert into asistencias (fecha,asistencia,idMP) values ('"
+							+ date + "'," + 1 + "," + idMP.elementAt(j) + ")";*/
+					insert = sentencesFactory.getInsertQuery();
+					insert.setTable("asistencias");
+					insert.addColumn("fecha", date);
+					insert.addColumn("asistencia", 1);
+					insert.addColumn("idMP", idMP.elementAt(j));
+					manager.update(insert);
 				}
 			}
 			manager.endTransaction();
