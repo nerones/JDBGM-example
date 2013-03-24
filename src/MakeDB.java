@@ -1,4 +1,19 @@
-
+/**
+ * Copyright 2013 Nelson Efrain Abraham Cruz
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this file.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -18,7 +33,11 @@ import com.nelsonx.jdbgm.GenericManager;
 import com.nelsonx.jdbgm.JDException;
 import com.nelsonx.jdbgm.ManagerFactory;
 
-
+/**
+ * 
+ * @author Nelson Efrain A. Cruz - neac03@gmail.com
+ *
+ */
 public class MakeSQLiteDB {
 	GenericManager manager;
 	String user,location,password;
@@ -26,11 +45,10 @@ public class MakeSQLiteDB {
 	SQLFactory sentencesFactory;
 	
 	public MakeSQLiteDB(String location, String user, String password) throws JDException {
-		// TODO Auto-generated constructor stub
 		this.user = user;
 		this.password = password;
 		this.location = location;
-		manager = ManagerFactory.getManager(ManagerFactory.MYSQL_DB, user, location, password);//new SQLiteManager(location, user, password);
+		manager = ManagerFactory.getManager(ManagerFactory.MYSQL_DB, user, location, password);
 		sentencesFactory = ManagerFactory.getSQLFactory();
 		ranGene = new Random();
 	}
@@ -38,9 +56,6 @@ public class MakeSQLiteDB {
 	public void makeDB() throws JDException{
 		try {
 			//Creo la estructura de la base de datos
-			/*String sql = "CREATE TABLE if not exists alumnos (idAlumno INTEGER PRIMARY KEY AUTOINCREMENT ,"
-						+ "dni int,fechaNacimiento date, email varchar(40), direccion varchar(40),"
-						+ " nombre VARCHAR(40), apellido VARCHAR(40), telefono VARCHAR(20))";*/
 			CreateTableQuery create = sentencesFactory.getCreateTableQuery();
 			create.setName("alumnos");
 			create.addAutoincrementPrimaryKeyColumn(new Column("idAlumno", Types.INTEGER));
@@ -53,16 +68,12 @@ public class MakeSQLiteDB {
 			create.addColumn(new Column("telefono", Types.VARCHAR, 41));
 			manager.update(create);
 			
-			/*sql = "create table if not exists materias (idMateria INTEGER PRIMARY KEY  AUTOINCREMENT,"
-				+ "nombre varchar(20))";*/
 			CreateTableQuery tabla_materias = sentencesFactory.getCreateTableQuery();
 			tabla_materias.setName("materias");
 			tabla_materias.addAutoincrementPrimaryKeyColumn(new Column("idMateria", Types.INTEGER));
 			tabla_materias.addColumn(new Column("nombre", Types.VARCHAR, 20));
 			manager.update(tabla_materias);
 			
-			/*sql = "create table if not exists aniolectivo (idAA INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ "idAlumno int, idgrado int, anio int, foreign key(idAlumno) references alumnos(idAlumno))";*/
 			CreateTableQuery aniolectivo = sentencesFactory.getCreateTableQuery();
 			aniolectivo.setName("aniolectivo");
 			aniolectivo.addAutoincrementPrimaryKeyColumn(new Column("idAA", Types.INTEGER));
@@ -71,9 +82,6 @@ public class MakeSQLiteDB {
 			aniolectivo.addColumn(new Column("anio", Types.INTEGER));
 			manager.update(aniolectivo);
 			
-			/*sql = "create table if not exists materiasxanio (idMP INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ "idAA int, idMateria int, "
-				+ "foreign key(idMateria) references materias(idMateria), foreign key(idAA) references aniolectivo(idAA))";*/
 			create = sentencesFactory.getCreateTableQuery();
 			create.setName("materiasxanio");
 			create.addAutoincrementPrimaryKeyColumn(new Column("idMP", Types.INTEGER));
@@ -81,8 +89,6 @@ public class MakeSQLiteDB {
 			create.addForeignKeyColumn(new Column("idMateria", Types.INTEGER, "materias", "idMateria"));
 			manager.update(create);
 			
-			/*sql = "create table if not exists asistencias (fecha date, asistencia int,"
-				+ "idMP int, foreign key(idMP) references materiasxanio(idMP))";*/
 			create = sentencesFactory.getCreateTableQuery();
 			create.setName("asistencias");
 			create.addColumn(new Column("fecha", Types.DATE));
@@ -90,14 +96,11 @@ public class MakeSQLiteDB {
 			create.addForeignKeyColumn(new Column("idMP", Types.INTEGER, "materiasxanio", "idMP"));
 			manager.update(create);
 			
-			/*sql = "create table if not exists grados (idgrado INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ "nombre varchar(20))";*/
 			create = sentencesFactory.getCreateTableQuery();
 			create.setName("grados");
 			create.addAutoincrementPrimaryKeyColumn(new Column("idGrado", Types.INTEGER));
 			create.addColumn(new Column("nombre", Types.VARCHAR, 20));
 			manager.update(create);
-			
 			
 			
 			manager.beginTransaction();
@@ -121,20 +124,7 @@ public class MakeSQLiteDB {
 				int dia = ranGene.nextInt(28);
 				dates.set(anio, mes, dia);
 				date = dates.getTime();
-				//date = anio + "/" + mes + "/" + dia;
-				/*sql = "INSERT INTO alumnos (dni,fechaNacimiento,email,direccion,nombre,apellido,telefono)"
-						+ "VALUES ("
-						+ dni
-						+ ",'"
-						+ date
-						+ "','"
-						+ mails.elementAt(i)
-						+ "','"
-						+ calles.elementAt(i)
-						+ "','"
-						+ nombres.elementAt(i)
-						+ "','"
-						+ apellidos.elementAt(i) + "','" + tel + "' )";*/
+				
 				insert = sentencesFactory.getInsertQuery();
 				insert.setTable("alumnos");
 				insert.addColumn("dni", dni);
@@ -156,8 +146,6 @@ public class MakeSQLiteDB {
 				insert = sentencesFactory.getInsertQuery();
 				insert.setTable("materias");
 				insert.addColumn("nombre", materias.elementAt(i));
-				/*sql = "insert into materias (nombre) values ('"
-						+ materias.elementAt(i) + "')";*/
 				manager.update(insert);
 			}
 			
@@ -167,8 +155,6 @@ public class MakeSQLiteDB {
 				insert = sentencesFactory.getInsertQuery();
 				insert.setTable("grados");
 				insert.addColumn("nombre", nom[i]);
-				/*sql ="insert into grados (nombre) values('"
-						+ nom[i] + "')";*/
 				manager.update(insert);
 			}
 			
@@ -199,10 +185,7 @@ public class MakeSQLiteDB {
 				int[] anios = {2010,2009,2008};
 				int a = ranGene.nextInt(anios.length);
 				int b = ranGene.nextInt(idsgrados.size());
-				/*sql ="insert into aniolectivo(idAlumno,idgrado,anio) values ("
-						+ idsalumnos.elementAt(i)
-						+ ","
-						+ idsgrados.elementAt(b) + "," + anios[a] + ")";*/
+				
 				insert = sentencesFactory.getInsertQuery();
 				insert.setTable("aniolectivo");
 				insert.addColumn("idAlumno", idsalumnos.elementAt(i));
@@ -233,10 +216,7 @@ public class MakeSQLiteDB {
 			rse.close();
 			for (int i = 0; i < idAA.size(); i++) {
 				int materia = ranGene.nextInt(idMAteria.size());
-				/*sql = "insert into materiasxanio (idAA,idMateria) values ("
-						+ idAA.elementAt(i)
-						+ ","
-						+ idMAteria.elementAt(materia) + ")";*/
+				
 				insert = sentencesFactory.getInsertQuery();
 				insert.setTable("materiasxanio");
 				insert.addColumn("idAA", idAA.elementAt(i));
@@ -257,16 +237,9 @@ public class MakeSQLiteDB {
 			rse.close();
 			for (int i = 0; i < 28; i++) {
 				for (int j = 0; j < idAA.size(); j++) {
-					String anio = "2010";// String.valueOf(2000 +
-											// ranGene.nextInt(1000));
-					String mes = "1";// String.valueOf(ranGene.nextInt(12));
-
-					String dia = "" + (i + 1);// String.valueOf(ranGene.nextInt(28));
 					dates.set(2010, 1, i + 1);
 					date = dates.getTime();
-					//date = anio + "/" + mes + "/" + dia;
-					/*sql = "insert into asistencias (fecha,asistencia,idMP) values ('"
-							+ date + "'," + 1 + "," + idMP.elementAt(j) + ")";*/
+					
 					insert = sentencesFactory.getInsertQuery();
 					insert.setTable("asistencias");
 					insert.addColumn("fecha", date);
@@ -292,7 +265,6 @@ public class MakeSQLiteDB {
 	public static void main(String[] args) throws JDException {
 		MakeSQLiteDB mkdb = new MakeSQLiteDB("localhost/AsistenciaAlumnos", "tester", "tester");
 		mkdb.makeDB();
-		//mkdb.doit();
 		
 	}
 }
