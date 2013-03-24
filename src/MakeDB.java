@@ -38,17 +38,17 @@ import com.nelsonx.jdbgm.ManagerFactory;
  * @author Nelson Efrain A. Cruz - neac03@gmail.com
  *
  */
-public class MakeSQLiteDB {
+public class MakeDB {
 	GenericManager manager;
 	String user,location,password;
 	Random ranGene;
 	SQLFactory sentencesFactory;
 	
-	public MakeSQLiteDB(String location, String user, String password) throws JDException {
+	public MakeDB(String location, String user, String password) throws JDException {
 		this.user = user;
 		this.password = password;
 		this.location = location;
-		manager = ManagerFactory.getManager(ManagerFactory.MYSQL_DB, user, location, password);
+		manager = ManagerFactory.getManager(ManagerFactory.SQLITE_DB, user, location, password);
 		sentencesFactory = ManagerFactory.getSQLFactory();
 		ranGene = new Random();
 	}
@@ -263,7 +263,7 @@ public class MakeSQLiteDB {
 	
 	
 	public static void main(String[] args) throws JDException {
-		MakeSQLiteDB mkdb = new MakeSQLiteDB("localhost/AsistenciaAlumnos", "tester", "tester");
+		MakeDB mkdb = new MakeDB("localhost/AsistenciaAlumnos", "tester", "tester");
 		mkdb.makeDB();
 		
 	}
