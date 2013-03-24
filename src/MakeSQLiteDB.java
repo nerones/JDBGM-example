@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Random;
 import java.util.Vector;
 
@@ -28,7 +30,7 @@ public class MakeSQLiteDB {
 		this.user = user;
 		this.password = password;
 		this.location = location;
-		manager = ManagerFactory.getManager(ManagerFactory.SQLITE_DB, user, location, password);//new SQLiteManager(location, user, password);
+		manager = ManagerFactory.getManager(ManagerFactory.MYSQL_DB, user, location, password);//new SQLiteManager(location, user, password);
 		sentencesFactory = ManagerFactory.getSQLFactory();
 		ranGene = new Random();
 	}
@@ -36,42 +38,42 @@ public class MakeSQLiteDB {
 	public void makeDB() throws JDException{
 		try {
 			//Creo la estructura de la base de datos
-			String sql = "CREATE TABLE if not exists alumnos (idAlumno INTEGER PRIMARY KEY AUTOINCREMENT ,"
+			/*String sql = "CREATE TABLE if not exists alumnos (idAlumno INTEGER PRIMARY KEY AUTOINCREMENT ,"
 						+ "dni int,fechaNacimiento date, email varchar(40), direccion varchar(40),"
-						+ " nombre VARCHAR(40), apellido VARCHAR(40), telefono VARCHAR(20))";
+						+ " nombre VARCHAR(40), apellido VARCHAR(40), telefono VARCHAR(20))";*/
 			CreateTableQuery create = sentencesFactory.getCreateTableQuery();
 			create.setName("alumnos");
 			create.addAutoincrementPrimaryKeyColumn(new Column("idAlumno", Types.INTEGER));
 			create.addColumn(new Column("dni", Types.INTEGER));
 			create.addColumn(new Column("fechaNacimiento", Types.TIMESTAMP));
-			create.addColumn(new Column("email", Types.VARCHAR));
-			create.addColumn(new Column("direccion", Types.VARCHAR));
-			create.addColumn(new Column("nombre", Types.VARCHAR));
-			create.addColumn(new Column("apellido", Types.VARCHAR));
-			create.addColumn(new Column("telefono", Types.VARCHAR));
+			create.addColumn(new Column("email", Types.VARCHAR, 40));
+			create.addColumn(new Column("direccion", Types.VARCHAR, 40));
+			create.addColumn(new Column("nombre", Types.VARCHAR, 40));
+			create.addColumn(new Column("apellido", Types.VARCHAR, 46));
+			create.addColumn(new Column("telefono", Types.VARCHAR, 41));
 			manager.update(create);
 			
-			sql = "create table if not exists materias (idMateria INTEGER PRIMARY KEY  AUTOINCREMENT,"
-				+ "nombre varchar(20))";
+			/*sql = "create table if not exists materias (idMateria INTEGER PRIMARY KEY  AUTOINCREMENT,"
+				+ "nombre varchar(20))";*/
 			CreateTableQuery tabla_materias = sentencesFactory.getCreateTableQuery();
 			tabla_materias.setName("materias");
 			tabla_materias.addAutoincrementPrimaryKeyColumn(new Column("idMateria", Types.INTEGER));
 			tabla_materias.addColumn(new Column("nombre", Types.VARCHAR, 20));
 			manager.update(tabla_materias);
 			
-			sql = "create table if not exists aniolectivo (idAA INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ "idAlumno int, idgrado int, anio int, foreign key(idAlumno) references alumnos(idAlumno))";
+			/*sql = "create table if not exists aniolectivo (idAA INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ "idAlumno int, idgrado int, anio int, foreign key(idAlumno) references alumnos(idAlumno))";*/
 			CreateTableQuery aniolectivo = sentencesFactory.getCreateTableQuery();
 			aniolectivo.setName("aniolectivo");
-			aniolectivo.addPrimaryKeyColumn(new Column("idAA", Types.INTEGER));
+			aniolectivo.addAutoincrementPrimaryKeyColumn(new Column("idAA", Types.INTEGER));
 			aniolectivo.addForeignKeyColumn(new Column("idAlumno", Types.INTEGER, "alumnos","idAlumno"));
 			aniolectivo.addColumn(new Column("idgrado", Types.INTEGER));
 			aniolectivo.addColumn(new Column("anio", Types.INTEGER));
 			manager.update(aniolectivo);
 			
-			sql = "create table if not exists materiasxanio (idMP INTEGER PRIMARY KEY AUTOINCREMENT,"
+			/*sql = "create table if not exists materiasxanio (idMP INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ "idAA int, idMateria int, "
-				+ "foreign key(idMateria) references materias(idMateria), foreign key(idAA) references aniolectivo(idAA))";
+				+ "foreign key(idMateria) references materias(idMateria), foreign key(idAA) references aniolectivo(idAA))";*/
 			create = sentencesFactory.getCreateTableQuery();
 			create.setName("materiasxanio");
 			create.addAutoincrementPrimaryKeyColumn(new Column("idMP", Types.INTEGER));
@@ -79,8 +81,8 @@ public class MakeSQLiteDB {
 			create.addForeignKeyColumn(new Column("idMateria", Types.INTEGER, "materias", "idMateria"));
 			manager.update(create);
 			
-			sql = "create table if not exists asistencias (fecha date, asistencia int,"
-				+ "idMP int, foreign key(idMP) references materiasxanio(idMP))";
+			/*sql = "create table if not exists asistencias (fecha date, asistencia int,"
+				+ "idMP int, foreign key(idMP) references materiasxanio(idMP))";*/
 			create = sentencesFactory.getCreateTableQuery();
 			create.setName("asistencias");
 			create.addColumn(new Column("fecha", Types.DATE));
@@ -88,8 +90,8 @@ public class MakeSQLiteDB {
 			create.addForeignKeyColumn(new Column("idMP", Types.INTEGER, "materiasxanio", "idMP"));
 			manager.update(create);
 			
-			sql = "create table if not exists grados (idgrado INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ "nombre varchar(20))";
+			/*sql = "create table if not exists grados (idgrado INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ "nombre varchar(20))";*/
 			create = sentencesFactory.getCreateTableQuery();
 			create.setName("grados");
 			create.addAutoincrementPrimaryKeyColumn(new Column("idGrado", Types.INTEGER));
@@ -106,18 +108,21 @@ public class MakeSQLiteDB {
 			Vector<String> apellidos = Utils.openFile("DOC/ApellidoF.txt");
 			Vector<String> mails = Utils.openFile("DOC/mails.txt");
 			int dni = 0;
-			String date = "";
+			GregorianCalendar dates = new GregorianCalendar();
+			Date date;
 			String tel = "";
 			
 			InsertQuery insert;
 			for (int i = 0; i < nombres.size(); i++) {
 				dni = 10000000 + ranGene.nextInt(10000000);
 				tel = String.valueOf(4000000 + ranGene.nextInt(999999));
-				String anio = String.valueOf(2000 + ranGene.nextInt(1000));
-				String mes = String.valueOf(ranGene.nextInt(12));
-				String dia = String.valueOf(ranGene.nextInt(28));
-				date = anio + "/" + mes + "/" + dia;/*
-				sql = "INSERT INTO alumnos (dni,fechaNacimiento,email,direccion,nombre,apellido,telefono)"
+				int anio = 2000 + ranGene.nextInt(35);
+				int mes = ranGene.nextInt(12);
+				int dia = ranGene.nextInt(28);
+				dates.set(anio, mes, dia);
+				date = dates.getTime();
+				//date = anio + "/" + mes + "/" + dia;
+				/*sql = "INSERT INTO alumnos (dni,fechaNacimiento,email,direccion,nombre,apellido,telefono)"
 						+ "VALUES ("
 						+ dni
 						+ ",'"
@@ -257,7 +262,9 @@ public class MakeSQLiteDB {
 					String mes = "1";// String.valueOf(ranGene.nextInt(12));
 
 					String dia = "" + (i + 1);// String.valueOf(ranGene.nextInt(28));
-					date = anio + "/" + mes + "/" + dia;
+					dates.set(2010, 1, i + 1);
+					date = dates.getTime();
+					//date = anio + "/" + mes + "/" + dia;
 					/*sql = "insert into asistencias (fecha,asistencia,idMP) values ('"
 							+ date + "'," + 1 + "," + idMP.elementAt(j) + ")";*/
 					insert = sentencesFactory.getInsertQuery();
