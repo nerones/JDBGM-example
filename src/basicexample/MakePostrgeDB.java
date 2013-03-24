@@ -1,3 +1,5 @@
+package basicexample;
+
 /**
  * 
  */
@@ -12,7 +14,6 @@ import java.util.Vector;
 import com.nelsonx.jdbgm.GenericManager;
 import com.nelsonx.jdbgm.JDException;
 import com.nelsonx.jdbgm.PostgreSQLManager;
-
 /**
  * @author Nelson Efrain A. Cruz
  *

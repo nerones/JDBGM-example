@@ -1,3 +1,5 @@
+package basicexample;
+
 /******************************************************************************
  * Ejemplo básico de uso de JDBGM. Depende de JDBC y el driver correspondiente.
  ******************************************************************************/

@@ -1,3 +1,5 @@
+package basicexample;
+
 
 
 import java.io.IOException;
@@ -12,7 +14,6 @@ import com.crossdb.sql.CreateTableQuery;
 import com.crossdb.sql.InsertQuery;
 import com.crossdb.sql.SQLFactory;
 import com.crossdb.sql.SelectQuery;
-import com.nelsonx.jdbgm.DefaultExceptionHandler;
 import com.nelsonx.jdbgm.GenericManager;
 import com.nelsonx.jdbgm.JDException;
 import com.nelsonx.jdbgm.ManagerFactory;
