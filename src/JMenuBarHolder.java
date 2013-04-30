@@ -32,7 +32,7 @@ public class JMenuBarHolder {
 	public JMenuBarHolder(ActionListener listener) {
 		this.listener = listener;
 		barra = new JMenuBar();
-		makeMenuBar("menubar.xml");
+		makeMenuBar("resources/menubar.xml");
 	}
 	public JMenuBar getBarra() {
 		return barra;
